@@ -232,7 +232,7 @@ init_game :: () {
     snake[0] = snake_head_pos;
     snake[1] = snake_head_pos - .{0, 1};
     snake[2] = snake_head_pos - .{0, 2};
-    snake_lenght = 3;
+    snake_lenght = 2;
     move_direction = .{0, 1};
     pause = false;
     game_over = false;

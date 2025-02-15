@@ -5,3 +5,4 @@ tmp/
 .build/
 *.exe
 *.pdb
+snake

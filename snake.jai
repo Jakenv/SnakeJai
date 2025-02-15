@@ -63,16 +63,16 @@ main :: () {
                     if it.key_pressed && it.key_code == .ESCAPE {
                         quit = true;
                     }
-                    if it.key_pressed && it.key_code == .ARROW_UP {
+                    if it.key_pressed && it.key_code == .ARROW_UP && move_direction != .{0, 1} {
                         move_direction = .{0, -1};
                     }
-                    if it.key_pressed && it.key_code == .ARROW_DOWN {
+                    if it.key_pressed && it.key_code == .ARROW_DOWN && move_direction != .{0, -1} {
                         move_direction = .{0, 1};
                     }
-                    if it.key_pressed && it.key_code == .ARROW_LEFT {
+                    if it.key_pressed && it.key_code == .ARROW_LEFT && move_direction != .{1, 0} {
                         move_direction = .{-1, 0};
                     }
-                    if it.key_pressed && it.key_code == .ARROW_RIGHT {
+                    if it.key_pressed && it.key_code == .ARROW_RIGHT && move_direction != .{-1, 0} {
                         move_direction = .{1, 0};
                     }
                     if it.key_pressed && it.key_code == .ENTER && game_over {
@@ -148,11 +148,6 @@ draw_snake :: () {
     }
 }
 
-get_new_food_pos :: () {
-    food_pos = .{cast(float)(cast(u32)(random_get_within_range(0.0, cast(float)GRID_WIDTH-1))),
-                cast(float)(cast(u32)(random_get_within_range(0.0, cast(float)GRID_WIDTH-1)))};
-}
-
 draw_food :: () {
     Simp.immediate_quad(
         .{food_pos.x*CELL_SIZE, food_pos.y*CELL_SIZE},
@@ -161,6 +156,11 @@ draw_food :: () {
         .{food_pos.x*CELL_SIZE, food_pos.y*CELL_SIZE + CELL_SIZE},
         .{.1, .90, .90, 1},
     );
+}
+
+get_new_food_pos :: () {
+    food_pos = .{cast(float)(cast(u32)(random_get_within_range(0.0, cast(float)GRID_WIDTH-1))),
+                cast(float)(cast(u32)(random_get_within_range(0.0, cast(float)GRID_WIDTH-1)))};
 }
 
 game_over_text :: () {

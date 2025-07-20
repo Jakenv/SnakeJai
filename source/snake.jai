@@ -156,7 +156,7 @@ draw_snake :: (head: *Texture, body: *Texture, tail: *Texture, move_direction: V
         };
 
         dir := ifx it == 0 then move_direction else snake[it-1] - snake[it];
-        rot := atan2(cast(float32)dir.y, cast(float32)dir.x);
+        rot := atan2( xx dir.y, xx dir.x);
 
         p0 := Vector2.{-CELL_SIZE / 2, -CELL_SIZE / 2};
         p1 := Vector2.{CELL_SIZE / 2, -CELL_SIZE / 2};
@@ -204,8 +204,11 @@ draw_food :: (texture: *Texture) {
 }
 
 get_new_food_pos :: () {
-    food_pos = .{cast(float)(cast(u32)(random_get_within_range(0.0, cast(float)GRID_WIDTH-1))),
-                cast(float)(cast(u32)(random_get_within_range(0.0, cast(float)GRID_WIDTH-1)))};
+    food_pos = .{xx (cast(u32) (random_get_within_range(0.0, cast(float) GRID_WIDTH-1))),
+                 xx (cast(u32) (random_get_within_range(0.0, cast(float) GRID_WIDTH-1)))};
+    for 1..snake_lenght {
+        if food_pos == snake[it] get_new_food_pos();
+    }
 }
 
 game_over_text :: () {

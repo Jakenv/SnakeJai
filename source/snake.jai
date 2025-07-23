@@ -120,11 +120,12 @@ draw_one_frame :: () {
                     if snake[it] == head_pos then game_over = true;
                 }
 
-                if head_pos.x < 0 ||
-                    head_pos.y < 0 ||
-                    head_pos.x >= GRID_WIDTH ||
-                    head_pos.y >= GRID_WIDTH
-                    then game_over = true;
+                for 0..snake_lenght {
+                    if snake[it].x > GRID_WIDTH then snake[it].x = 0;
+                    if snake[it].y > GRID_WIDTH then snake[it].y = 0;
+                    if snake[it].x < 0 then snake[it].x = GRID_WIDTH;
+                    if snake[it].y < 0 then snake[it].y = GRID_WIDTH;
+                }
 
                 for 1..snake_lenght {
                     cur_pos := snake[it];
@@ -243,11 +244,9 @@ init_game :: () {
 }
 
 init_textures :: () {
-    // Snake texture
     head_map = make_texture("head.png");
     body_map = make_texture("body.png");
     tail_map = make_texture("tail.png");
-    // Food for snake
     food_map = make_texture("food.png");
 }
 

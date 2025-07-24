@@ -39,10 +39,12 @@ tick_timer: float64 = 0.15;
 data_folder: string;
 Texture :: Simp.Texture;
 
-head_map    : Texture;
-body_map    : Texture;
-tail_map    : Texture;
-food_map    : Texture;
+Textures :: struct {
+    head_map: Texture;
+    body_map: Texture;
+    tail_map: Texture;
+    food_map: Texture;
+}
 
 main :: () {
     #if OS == .WINDOWS {
@@ -58,7 +60,8 @@ main :: () {
     data_folder = join(path_strip_filename(get_path_of_running_executable()), "textures");
     print("data_folder is '%'\n", data_folder);
 
-    init_textures();
+    textures: Textures;
+    init_textures(*textures);
     my_init_fonts();
     get_new_food_pos();
     init_game();
@@ -96,14 +99,14 @@ main :: () {
         }
 
         if !pause {
-            draw_one_frame();
+            draw_one_frame(*textures);
         }
         sleep_milliseconds(100);
         reset_temporary_storage();
     }
 }
 
-draw_one_frame :: () {
+draw_one_frame :: (textures: *Textures) {
     Simp.clear_render_target(.15, .08, .08, 1);
     Simp.set_shader_for_color();
     time := seconds_since_init();
@@ -116,17 +119,17 @@ draw_one_frame :: () {
                 snake[0] = snake[0] + move_direction;
                 head_pos := snake[0];
 
+                wrap :: x => xx (x + GRID_WIDTH) % GRID_WIDTH;
+
+                for 0..snake_lenght {
+                    snake[it].x = xx wrap(snake[it].x);
+                    snake[it].y = xx wrap(snake[it].y);
+                }
+
                 for 1..snake_lenght {
                     cur_pos := snake[it];
                     snake[it] = next_part_pos;
                     next_part_pos = cur_pos;
-                }
-
-                for 0..snake_lenght {
-                    if snake[it].x > GRID_WIDTH then snake[it].x = 0;
-                    if snake[it].y > GRID_WIDTH then snake[it].y = 0;
-                    if snake[it].x < 0 then snake[it].x = GRID_WIDTH;
-                    if snake[it].y < 0 then snake[it].y = GRID_WIDTH;
                 }
 
                 if head_pos == food_pos {
@@ -140,8 +143,8 @@ draw_one_frame :: () {
                 }
 
                 tick_timer = tick_rate + tick_timer;
-                draw_snake(*head_map, *body_map, *tail_map, move_direction);
-                draw_food(*food_map);
+                draw_snake(*textures.head_map, *textures.body_map, *textures.tail_map, move_direction);
+                draw_food(*textures.food_map);
             }
         } else game_over_text();
     }
@@ -156,7 +159,7 @@ draw_snake :: (head: *Texture, body: *Texture, tail: *Texture, move_direction: V
             snake[it].y * CELL_SIZE + CELL_SIZE / 2
         };
 
-        dir := ifx it == 0 then move_direction else snake[it-1] - snake[it];
+        dir := ifx it == 0 then move_direction else wrap_direction(snake[it], snake[it-1]);
         rot := atan2( xx dir.y, xx dir.x);
 
         p0 := Vector2.{-CELL_SIZE / 2, -CELL_SIZE / 2};
@@ -191,6 +194,21 @@ draw_snake :: (head: *Texture, body: *Texture, tail: *Texture, move_direction: V
         }
         Simp.immediate_quad(rp0, rp1, rp2, rp3, .{.50, .50, .50, 1});
     }
+}
+
+wrap_direction :: (from: Vector2, to: Vector2) -> Vector2 {
+    dx := to.x - from.x;
+    dy := to.y - from.y;
+
+    if dx > 1  dx -= GRID_WIDTH;
+    if dx < -1 dx += GRID_WIDTH;
+    if dy > 1  dy -= GRID_WIDTH;
+    if dy < -1 dy += GRID_WIDTH;
+
+    dx = clamp(dx, -1, 1);
+    dy = clamp(dy, -1, 1);
+
+    return .{dx, dy};
 }
 
 draw_food :: (texture: *Texture) {
@@ -243,11 +261,11 @@ init_game :: () {
     food_state = false;
 }
 
-init_textures :: () {
-    head_map = make_texture("head.png");
-    body_map = make_texture("body.png");
-    tail_map = make_texture("tail.png");
-    food_map = make_texture("food.png");
+init_textures :: (textures: *Textures) {
+    textures.head_map = make_texture(tprint("head.png"));
+    textures.body_map = make_texture(tprint("body.png"));
+    textures.tail_map = make_texture(tprint("tail.png"));
+    textures.food_map = make_texture(tprint("food.png"));
 }
 
 make_texture :: (name: string) -> Texture, bool {

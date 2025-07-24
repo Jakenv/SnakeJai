@@ -116,8 +116,10 @@ draw_one_frame :: () {
                 snake[0] = snake[0] + move_direction;
                 head_pos := snake[0];
 
-                for 1..snake_lenght-1 {
-                    if snake[it] == head_pos then game_over = true;
+                for 1..snake_lenght {
+                    cur_pos := snake[it];
+                    snake[it] = next_part_pos;
+                    next_part_pos = cur_pos;
                 }
 
                 for 0..snake_lenght {
@@ -127,16 +129,14 @@ draw_one_frame :: () {
                     if snake[it].y < 0 then snake[it].y = GRID_WIDTH;
                 }
 
-                for 1..snake_lenght {
-                    cur_pos := snake[it];
-                    snake[it] = next_part_pos;
-                    next_part_pos = cur_pos;
-                }
-
                 if head_pos == food_pos {
                     snake_lenght += 1;
                     snake[snake_lenght] = next_part_pos;
                     get_new_food_pos();
+                }
+
+                for 1..snake_lenght-1 {
+                    if snake[it] == head_pos then game_over = true;
                 }
 
                 tick_timer = tick_rate + tick_timer;
